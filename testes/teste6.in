@@ -1,0 +1,20 @@
+program test6
+  declare
+     boolean b;
+     procedure p(procedure f)
+     declare
+        integer x;
+        procedure q begin write(x) end
+     begin
+        x := if b then 5 else 0 end;
+        b := not b;
+        if b then p(q) end;
+        f
+     end
+     procedure r begin write(’.’) end
+  begin
+     write(’x’); write(’=’);
+     b :=false;
+     p(r)
+  end
+

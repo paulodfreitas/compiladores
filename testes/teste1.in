@@ -1,0 +1,10 @@
+program teste1
+ declare
+     real a, b, c
+ begin
+     if a > b then
+          c := a + b
+     else c := a - b * c
+     end
+ end
+

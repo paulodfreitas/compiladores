@@ -1,0 +1,12 @@
+program teste3
+ declare
+     integer j, k;
+     array 100 integer
+     array 100 integer
+     array 100 integer
+ begin
+     i := 3;   j := 4;
+     a(i) := a(2*i+3)
+     c(i) := a(i)
+ end
+

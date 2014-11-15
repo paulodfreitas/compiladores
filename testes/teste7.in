@@ -1,0 +1,19 @@
+program teste7
+ declare
+     labe L1, L2;
+     integer x;
+ begin x := 0;
+     L1: x := x + 1;
+     declare
+          integer y;
+     begin y := 1;
+          declare
+              integer z;
+          begin
+              z := x + y;
+              if z < 10 then goto L1 else goto L2 end
+          end
+     end;
+     L2: write(x)
+ end
+
