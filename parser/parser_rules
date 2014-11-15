@@ -1,0 +1,255 @@
+%{
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
+int yydebug=1;
+extern int yylineno,yychar;
+void yyerror(const char *str)
+{
+    printf("ERRO!!\nLinha: %d\n%s!\n",yylineno,str);
+}
+ 
+int yywrap()
+{
+    return 1;
+} 
+  
+main()
+{
+    printf("******** Analisador Sintatico ********\n");
+    yyparse();
+} 
+
+
+%}
+
+%token PROGRAM BEGIN_ END DECLARE INTEGER BOOLEAN CHAR LABEL REAL ARRAY OF PROCEDURE IF THEN ELSE WHILE DO READ WRITE GOTO RETURN NOT OR MOD AND TRUE FALSE GE NE ASSIGN
+
+%union{
+    int number;
+    char* string;
+}
+
+%token <number> CHARACTER
+%token <string> ID
+%type <number> caractere 
+%type <string> identifier 
+
+%right  '='
+%left  '+'  '-' AND
+%left  '*'  '/' OR MOD
+
+%%
+program           : PROGRAM identifier block_stmt
+                  {printf("program\n");};
+
+block_stmt        : BEGIN_ stmt_list END
+                  | DECLARE decl_list BEGIN_ stmt_list END
+                  {printf("block_stmt\n");};
+
+decl_list         : 
+                  | decl 
+                  | decl_list ';' decl
+                  {printf("decl_list\n");};
+
+decl              : 
+                  | variable_decl 
+                  | proc_decl
+                  {printf("decl\n");};
+
+variable_decl     : type ident_list
+                  {printf("variable_decl\n");};
+
+ident_list        : identifier 
+                  | ident_list ',' identifier
+                  {printf("ident_list\n");};
+
+type              : simple_type 
+                  | array_type
+                  {printf("type\n");};
+
+simple_type       : INTEGER 
+                  | BOOLEAN 
+                  | CHAR 
+                  | LABEL
+                  {printf("simple_type\n");};
+
+array_type        : ARRAY tamanho OF simple_type
+                  {printf("array_type\n");};
+
+tamanho           : integer_constant
+                  {printf("tamanho\n");};
+
+proc_decl         : PROCEDURE identifier block_stmt
+                  | PROCEDURE identifier '(' formal_list ')' block_stmt
+                  {printf("proc_decl\n");};
+
+formal_list       : parameter_decl 
+                  | formal_list ';' parameter_decl
+                  {printf("formal_list\n");};
+
+parameter_decl    : parameter_type identifier
+                  {printf("parameter_decl\n");};
+
+parameter_type    : type
+                  {printf("parameter_type\n");};
+
+proc_signature    : PROCEDURE identifier
+                  | PROCEDURE identifier '(' type_list ')' 
+                  {printf("proc_signature\n");};
+
+type_list         : parameter_type
+                  | type_list ',' parameter_type
+                  {printf("type_list\n");};
+
+stmt_list         : stmt 
+                  | stmt_list ';' stmt
+                  {printf("stmt_list\n");};
+
+stmt              : label ':' unlabelled_stmt 
+                  | unlabelled_stmt
+                  {printf("stmt\n");};
+
+label             : identifier
+                  {printf("label\n");};
+
+unlabelled_stmt   : assign_stmt 
+                  | if_stmt    
+                  | while_stmt 
+                  | read_stmt 
+                  | write_stmt
+                  | goto_stmt    
+                  | proc_stmt 
+                  | return_stmt 
+                  | block_stmt
+                  {printf("unlabelled_stmt\n");};
+
+assign_stmt       : variable ASSIGN expression
+                  {printf("assign_stmt\n");};
+
+variable          : identifier 
+                  | array_element
+                  {printf("variable\n");};
+
+array_element     : identifier '[' expression ']'
+                  {printf("array_element\n");};
+
+if_stmt           : IF condition THEN stmt_list END
+                  | IF condition THEN stmt_list ELSE stmt_list END
+                  {printf("if_stmt\n");};
+
+condition         : expression
+                  {printf("condition\n");};
+
+while_stmt        : stmt_prefix stmt_list END
+                  {printf("while_stmt\n");};
+
+stmt_prefix       : WHILE condition DO
+                  {printf("stmt_prefix\n");};
+
+read_stmt         : READ '(' ident_list ')'
+                  {printf("read_stmt\n");};
+
+write_stmt        : WRITE '(' expr_list ')'
+                  {printf("write_stmt\n");};
+
+goto_stmt         : GOTO label
+                  {printf("goto_stmt\n");};
+
+proc_stmt         : identifier 
+                  | identifier '(' expr_list ')' 
+                  {printf("proc_stmt\n");};
+
+return_stmt       : RETURN
+                  {printf("return_stmt\n");};
+
+expr_list         : expression 
+                  | expr_list ',' expression
+                  {printf("expr_list\n");};
+
+expression        : simple_expr 
+                  | simple_expr relop simple_expr
+                  {printf("expression\n");};
+
+simple_expr       : term 
+                  | simple_expr addop term
+                  {printf("simple_expr\n");};
+
+term              : factor_a 
+                  | term mulop factor_a
+                  {printf("term\n");};
+
+factor_a          : factor 
+                  | NOT factor 
+                  | '-' factor
+                  {printf("factor_a\n");};
+
+factor            : variable 
+                  | constant 
+                  | '(' expression ')'
+                  {printf("factor\n");};
+
+relop             : '=' {printf("relop: =\n");}
+                  | '>' {printf("relop: >\n");}
+                  | '<' {printf("relop: <\n");}
+                  | GE {printf("relop: >=\n");}
+                  | NE {printf("relop: !=\n");}
+                  ;
+
+addop             : '+' {printf("addop: +\n");}
+                  | '-' {printf("addop: -\n");}
+                  | OR {printf("addop: OR\n");}
+                  ;
+
+mulop             : '*' {printf("mulop: *\n");}
+                  | '/' {printf("mulop: /\n");}
+                  | MOD {printf("mulop: MOD\n");}
+                  | AND {printf("mulop: AND\n");}
+                  ;
+
+constant          : integer_constant 
+                  | char_constant 
+                  | boolean_constant
+                  {printf("constant\n");};
+
+boolean_constant  : FALSE 
+                  | TRUE
+                  {printf("boolean_constant\n");};
+
+integer_constant  : unsigned_integer
+                  {printf("integer_constant\n");};
+                  ;
+
+unsigned_integer  : digit 
+                  | unsigned_integer digit
+                  {printf("unsigned_integer\n");};
+                  ;
+
+
+char_constant     : caractere
+                  {printf("char_constant\n");};
+                  ;
+
+identifier        : ID
+                  {$$=$1;printf("identifier: %s\n",$1);};
+
+digit             : '0' {printf("digit: 0\n");}  
+                  | '1' {printf("digit: 1\n");} 
+                  | '2' {printf("digit: 2\n");} 
+                  | '3' {printf("digit: 3\n");} 
+                  | '4' {printf("digit: 4\n");} 
+                  | '5' {printf("digit: 5\n");} 
+                  | '6' {printf("digit: 6\n");} 
+                  | '7' {printf("digit: 7\n");} 
+                  | '8' {printf("digit: 8\n");} 
+                  | '9' {printf("digit: 9\n");}
+                  ;
+
+caractere         : CHARACTER 
+                  {printf("caractere: %c\n",$1);}
+                  ;
+
+%%
+
+
