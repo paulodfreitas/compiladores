@@ -23,7 +23,7 @@ main()
 
 %}
 
-%token PROGRAM BEGIN_ END DECLARE INTEGER BOOLEAN CHAR LABEL REAL ARRAY OF PROCEDURE IF THEN ELSE WHILE DO READ WRITE GOTO RETURN NOT OR MOD AND TRUE FALSE GE NE ASSIGN
+%token PROGRAM END DECLARE INTEGER BOOLEAN CHAR LABEL REAL ARRAY OF PROCEDURE IF THEN ELSE WHILE DO UNTIL READ WRITE GOTO RETURN NOT OR MOD AND TRUE FALSE GE LE NE ASSIGN
 
 %union{
     int number;
@@ -40,11 +40,14 @@ main()
 %left  '*'  '/' OR MOD
 
 %%
-program           : PROGRAM identifier block_stmt
+program           : PROGRAM identifier proc_body
                   {printf("program\n");};
 
-block_stmt        : BEGIN_ stmt_list END
-                  | DECLARE decl_list BEGIN_ stmt_list END
+proc_body         : block_stmt
+                  {printf("proc-body\n");};
+
+block_stmt        : DO stmt_list END
+                  | DECLARE decl_list DO stmt_list END
                   {printf("block_stmt\n");};
 
 decl_list         : 
@@ -68,7 +71,8 @@ type              : simple_type
                   | array_type
                   {printf("type\n");};
 
-simple_type       : INTEGER 
+simple_type       : INTEGER
+                  | REAL
                   | BOOLEAN 
                   | CHAR 
                   | LABEL
@@ -80,9 +84,12 @@ array_type        : ARRAY tamanho OF simple_type
 tamanho           : integer_constant
                   {printf("tamanho\n");};
 
-proc_decl         : PROCEDURE identifier block_stmt
-                  | PROCEDURE identifier '(' formal_list ')' block_stmt
+proc_decl         : proc_header block_stmt
                   {printf("proc_decl\n");};
+
+proc_header       : PROCEDURE identifier
+                  | PROCEDURE identifier '(' formal_list ')'
+                  {printf("proc_header\n");};
 
 formal_list       : parameter_decl 
                   | formal_list ';' parameter_decl
@@ -92,6 +99,7 @@ parameter_decl    : parameter_type identifier
                   {printf("parameter_decl\n");};
 
 parameter_type    : type
+                  | proc_signature
                   {printf("parameter_type\n");};
 
 proc_signature    : PROCEDURE identifier
@@ -115,7 +123,7 @@ label             : identifier
 
 unlabelled_stmt   : assign_stmt 
                   | if_stmt    
-                  | while_stmt 
+                  | loop_stmt 
                   | read_stmt 
                   | write_stmt
                   | goto_stmt    
@@ -141,11 +149,16 @@ if_stmt           : IF condition THEN stmt_list END
 condition         : expression
                   {printf("condition\n");};
 
-while_stmt        : stmt_prefix stmt_list END
-                  {printf("while_stmt\n");};
+loop_stmt         : stmt_prefix stmt_list stmt_suffix
+                  {printf("loop_stmt\n");};
 
 stmt_prefix       : WHILE condition DO
+                  | DO
                   {printf("stmt_prefix\n");};
+
+stmt_suffix       : UNTIL condition
+                  | END
+                  {printf("stmt_suffix\n");};
 
 read_stmt         : READ '(' ident_list ')'
                   {printf("read_stmt\n");};
@@ -190,8 +203,9 @@ factor            : variable
                   {printf("factor\n");};
 
 relop             : '=' {printf("relop: =\n");}
-                  | '>' {printf("relop: >\n");}
                   | '<' {printf("relop: <\n");}
+                  | LE {printf("relop: <=\n");}
+                  | '>' {printf("relop: >\n");}
                   | GE {printf("relop: >=\n");}
                   | NE {printf("relop: !=\n");}
                   ;
@@ -203,11 +217,11 @@ addop             : '+' {printf("addop: +\n");}
 
 mulop             : '*' {printf("mulop: *\n");}
                   | '/' {printf("mulop: /\n");}
-                  | MOD {printf("mulop: MOD\n");}
                   | AND {printf("mulop: AND\n");}
                   ;
 
 constant          : integer_constant 
+                  | real_constant 
                   | char_constant 
                   | boolean_constant
                   {printf("constant\n");};
@@ -225,6 +239,19 @@ unsigned_integer  : digit
                   {printf("unsigned_integer\n");};
                   ;
 
+real_constant     : unsigned_real
+                  {printf("real_constant\n");};
+
+unsigned_real     : unsigned_integer
+                  | unsigned_integer '.' unsigned_integer
+                  | unsigned_integer '.' unsigned_integer scale_factor
+                  {printf("unsigned_real\n");};
+
+scale_factor      : 'E' unsigned_integer
+                  | 'E' '+' unsigned_integer
+                  | 'E' '-' unsigned_integer
+                  {printf("scale_factor\n");};
+                  
 
 char_constant     : caractere
                   {printf("char_constant\n");};

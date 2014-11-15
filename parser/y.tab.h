@@ -67,10 +67,12 @@
      TRUE = 283,
      FALSE = 284,
      GE = 285,
-     NE = 286,
-     ASSIGN = 287,
-     CHARACTER = 288,
-     ID = 289
+     LE = 286,
+     NE = 287,
+     ASSIGN = 288,
+     CHARACTER = 289,
+     ID = 290,
+     UNTIL = 291
    };
 #endif
 /* Tokens.  */
@@ -102,11 +104,12 @@
 #define TRUE 283
 #define FALSE 284
 #define GE 285
-#define NE 286
-#define ASSIGN 287
-#define CHARACTER 288
-#define ID 289
-
+#define LE 286
+#define NE 287
+#define ASSIGN 288
+#define CHARACTER 289
+#define ID 290
+#define UNTIL 291
 
 
 
@@ -118,7 +121,7 @@ typedef union YYSTYPE
     char* string;
 }
 /* Line 1489 of yacc.c.  */
-#line 122 "y.tab.h"
+#line 124 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

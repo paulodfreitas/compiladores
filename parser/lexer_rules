@@ -14,7 +14,7 @@ number                  {digit}+(\.{digit}+)?(E[+-]?{digit}+)?
 
 %%
 program                 {return PROGRAM;}
-begin                   {return BEGIN_;}
+do                      {return DO;}
 end                     {return END;}
 declare                 {return DECLARE;}
 integer                 {return INTEGER;}
@@ -29,7 +29,7 @@ if                      {return IF;}
 then                    {return THEN;}
 else                    {return ELSE;}
 while                   {return WHILE;}
-do                      {return DO;}
+until                   {return UNTIL;}
 read                    {return READ;}
 write                   {return WRITE;}
 goto                    {return GOTO;}
@@ -41,6 +41,7 @@ mod                     {return MOD;}
 false                   {return FALSE;}
 true                    {return TRUE;}
 ">="                    {return GE;} 
+"<="                    {return LE;} 
 "!="                    {return NE;} 
 ":="                    {return ASSIGN;} 
 
