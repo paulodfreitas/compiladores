@@ -1,0 +1,61 @@
+%{
+#include <stdio.h>
+%}
+
+/* definicoes regulares */
+letter                  [A-Za-z]
+digit                   [0-9]
+id                      {letter}({letter}|{digit})*
+number                  {digit}+(\.{digit}+)?(E[+-]?{digit}+)?
+
+%%
+program                 printf("PROGRAM ");
+begin                   printf("BEGIN ");
+end                     printf("END ");
+declare                 printf("DECLARE ");
+integer                 printf("INTEGER");
+boolean                 printf("BOOLEAN ");
+char                    printf("CHAR ");
+label                   printf("LABEL ");
+real                    printf("REAL "); //fake?
+array                   printf("ARRAY ");
+of                      printf("OF ");
+procedure               printf("PROCEDURE ");
+if                      printf("IF ");
+then                    printf("THEN ");
+else                    printf("ELSE");
+while                   printf("WHILE ");
+do                      printf("DO ");
+read                    printf("READ ");
+write                   printf("WRITE ");
+goto                    printf("GOTO ");
+return                  printf("RETURN ");
+not                     printf("[RELOP %s] ", yytext);
+or                      printf("[ADDOP %s] ", yytext);
+and                     printf("[MULOP %s] ", yytext);
+false                   printf("FALSE ");
+true                    printf("TRUE ");
+">="|">"|"<="|"<"      	printf("[RELOP %s] ", yytext);
+"!="|"="              	printf("[RELOP %s] ", yytext);
+":="                  	printf("[RELOP %s] ", yytext);
+";"                     printf("; ");
+":"                     printf(": ");
+","                     printf(", ");
+"("                     printf("( ");
+")"                     printf(") ");
+"{"                     printf("{ ");
+"}"                     printf("} ");
+"["                     printf("[ ");
+"]"                     printf("] ");
+"'"                     printf("' ");
+"+"|"-"                 printf("[ADDOP %s] ", yytext);
+"*"|"/"                 printf("[MULOP %s] ", yytext);
+"mod"                   printf("[MULOP %s] ", yytext);
+
+{id}                    printf("[ID %s] ", yytext);
+{number}                printf("[NUM %s] ", yytext);
+"'"."'"                 printf("[CHARACTER %s] ", yytext);
+
+\n                      printf("\n");
+%%
+
