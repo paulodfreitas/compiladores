@@ -14,4 +14,3 @@ program teste4
      prime := nofactor;
      if prime then write(’S’) else  write(’N’) end
  end
-

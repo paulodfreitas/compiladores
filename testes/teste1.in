@@ -7,4 +7,3 @@ program teste1
      else c := a - b * c
      end
  end
-

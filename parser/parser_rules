@@ -7,7 +7,7 @@ int yydebug=1;
 extern int yylineno,yychar;
 void yyerror(const char *str)
 {
-    printf("ERRO!!\nLinha: %d\n%s!\n",yylineno,str);
+    printf("%s\nline: %d\n",str,yylineno);
 }
  
 int yywrap()
@@ -17,7 +17,6 @@ int yywrap()
   
 main()
 {
-    printf("******** Analisador Sintatico ********\n");
     yyparse();
 } 
 
