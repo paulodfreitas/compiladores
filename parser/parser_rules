@@ -1,4 +1,5 @@
 %{
+#include "types.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,6 +8,7 @@ int yydebug=1;
 extern int yylineno,yychar;
 char digit_parse[100];
 unsigned digit_index=0;
+
 void yyerror(const char *str)
 {
     printf("%s\nline: %d\n",str,yylineno);
@@ -27,9 +29,11 @@ main()
 
 %token PROGRAM END DECLARE INTEGER BOOLEAN CHAR LABEL REAL ARRAY OF PROCEDURE IF THEN ELSE WHILE DO UNTIL READ WRITE GOTO RETURN NOT OR MOD AND TRUE FALSE GE LE NE ASSIGN
 
+
 %union{
     int number;
-    char* string;
+    char string[100];
+    struct _constant_t constant_t;
 }
 
 %token <number> CHARACTER
@@ -40,7 +44,9 @@ main()
 %type <string> label
 %type <string> variable
 %type <number> char_constant
-%type <number> integer_constant
+%type <string> integer_constant
+%type <number> boolean_constant
+%type <constant_t> constant
 
 %right  '='
 %left  '+'  '-' AND
@@ -126,7 +132,7 @@ stmt              : label ':' unlabelled_stmt
                   {printf("stmt\n");};
 
 label             : identifier
-                  {$$=$1; printf("label\n");};
+                  {strcpy($$,$1); printf("label\n");};
 
 unlabelled_stmt   : assign_stmt 
                   | if_stmt    
@@ -142,7 +148,7 @@ unlabelled_stmt   : assign_stmt
 assign_stmt       : variable ASSIGN expression
                   {printf("assign_stmt\n");};
 
-variable          : identifier {$$=$1;};
+variable          : identifier {strcpy($$,$1);};
                   | array_element
                   {printf("variable\n");};
 
@@ -227,20 +233,19 @@ mulop             : '*' {printf("mulop: *\n");}
                   | AND {printf("mulop: AND\n");}
                   ;
 
-constant          : integer_constant 
-                  | real_constant 
-                  | char_constant 
-                  | boolean_constant
-                  {printf("constant\n");};
+constant          : integer_constant {strcpy($$.val,$1); strcpy($$.type,"integer"); printf("constant type=%s value=%s\n", $$.type, $$.val);};
+                  | real_constant
+                  | char_constant {$$.val[0]=$1; $$.val[1]='\0'; strcpy($$.type,"char"); printf("constant type=%s value=%s\n", $$.type, $$.val);}; 
+                  | boolean_constant {$$.val[0]=$1; $$.val[1]='\0'; strcpy($$.type,"bool"); printf("constant type=%s value=%s\n", $$.type, $$.val);};
 
-boolean_constant  : FALSE 
+boolean_constant  : FALSE {$$='0';}
                   | TRUE
-                  {printf("boolean_constant\n");};
+                  {$$='1'; printf("boolean_constant\n");};
 
 integer_constant  : unsigned_integer
-                  {$$=atoi(digit_parse);
+                  {digit_parse[digit_index] = '\0'; strcpy($$,digit_parse);
                    digit_index=0;
-                   printf("integer_constant: %d\n", $$);};
+                   printf("integer_constant: %s\n", $$);};
                   ;
 
 unsigned_integer  : digit {digit_parse[digit_index++] = $1; printf("single digit: %d\n", $1);};
@@ -266,7 +271,7 @@ char_constant     : caractere
                   ;
 
 identifier        : ID
-                  {$$=$1;printf("identifier: %s\n",$1);};
+                  {strcpy($$,$1);printf("identifier: %s\n",$1);};
 
 digit             : '0' {$$='0'; printf("digit: 0\n");}  
                   | '1' {$$='1'; printf("digit: 1\n");} 

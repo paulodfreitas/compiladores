@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "types.h"
 #include "y.tab.h"
 %}
 
@@ -51,7 +52,7 @@ true                    {return TRUE;}
 
 [ \n]+                  {yylineno+=1;}
 {digit}                 {return (int)yytext[0];}
-{id}                    {yylval.string=strdup(yytext);return ID;}
+{id}                    {strcpy(yylval.string,strdup(yytext));return ID;}
 "'"."'"                 {yylval.number=(int)yytext[1];return CHARACTER;}
 
 %%
