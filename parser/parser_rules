@@ -34,6 +34,7 @@ main()
     int number;
     char string[100];
     struct _constant_t constant_t;
+    struct _op_t op_t;
 }
 
 %token <number> CHARACTER
@@ -47,6 +48,9 @@ main()
 %type <string> integer_constant
 %type <number> boolean_constant
 %type <constant_t> constant
+%type <op_t> relop
+%type <op_t> addop
+%type <op_t> mulop
 
 %right  '='
 %left  '+'  '-' AND
@@ -215,22 +219,22 @@ factor            : variable
                   | '(' expression ')'
                   {printf("factor\n");};
 
-relop             : '=' {printf("relop: =\n");}
-                  | '<' {printf("relop: <\n");}
-                  | LE {printf("relop: <=\n");}
-                  | '>' {printf("relop: >\n");}
-                  | GE {printf("relop: >=\n");}
-                  | NE {printf("relop: !=\n");}
+relop             : '=' {strcpy($$.type, "assign"); printf("relop: =\n");}
+                  | '<' {strcpy($$.type, "lt"); printf("relop: <\n");}
+                  | LE {strcpy($$.type, "leq"); printf("relop: <=\n");}
+                  | '>' {strcpy($$.type, "gt"); printf("relop: >\n");}
+                  | GE {strcpy($$.type, "geq"); printf("relop: >=\n");}
+                  | NE {strcpy($$.type, "neq"); printf("relop: !=\n");}
                   ;
 
-addop             : '+' {printf("addop: +\n");}
-                  | '-' {printf("addop: -\n");}
-                  | OR {printf("addop: OR\n");}
+addop             : '+' {strcpy($$.type, "add"); printf("addop: +\n");}
+                  | '-' {strcpy($$.type, "sub"); printf("addop: -\n");}
+                  | OR {strcpy($$.type, "or"); printf("addop: OR\n");}
                   ;
 
-mulop             : '*' {printf("mulop: *\n");}
-                  | '/' {printf("mulop: /\n");}
-                  | AND {printf("mulop: AND\n");}
+mulop             : '*' {strcpy($$.type, "mul"); printf("mulop: *\n");}
+                  | '/' {strcpy($$.type, "div"); printf("mulop: /\n");}
+                  | AND {strcpy($$.type, "and"); printf("mulop: AND\n");}
                   ;
 
 constant          : integer_constant {strcpy($$.val,$1); strcpy($$.type,"integer"); printf("constant type=%s value=%s\n", $$.type, $$.val);};
