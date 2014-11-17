@@ -30,7 +30,7 @@ main()
 
 %}
 
-%token PROGRAM END DECLARE INTEGER BOOLEAN CHAR LABEL REAL ARRAY OF PROCEDURE IF THEN ELSE WHILE DO UNTIL READ WRITE GOTO RETURN NOT OR MOD AND TRUE FALSE GE LE NE ASSIGN
+%token PROGRAM END DECLARE INTEGER BOOLEAN CHAR LABEL REAL REAL_CONSTANT ARRAY OF PROCEDURE IF THEN ELSE WHILE DO UNTIL READ WRITE GOTO RETURN NOT OR MOD AND TRUE FALSE GE LE NE ASSIGN
 
 
 %union{
@@ -42,13 +42,14 @@ main()
 }
 
 %token <number> CHARACTER
-%token <string> ID
+%token <string> ID REAL_CONSTANT
 %type <number> caractere 
 %type <number> digit
 %type <string> label
 %type <string> variable
 %type <number> char_constant
 %type <string> integer_constant
+%type <string> real_constant
 %type <number> boolean_constant
 %type <constant_t> constant
 %type <op_t> relop
@@ -253,24 +254,8 @@ unsigned_integer  : digit {digit_parse[digit_index++] = $1; printf("single digit
                   | unsigned_integer digit {digit_parse[digit_index++]=$2; printf("composed digit: %d\n", $2);};
                   ;
 
-real_constant     : unsigned_real
-                  {printf("real_constant\n");};
-
-unsigned_real     : ur_head '.' ur_tail
-                  | unsigned_integer '.' unsigned_integer
-                  | unsigned_integer '.' unsigned_integer scale_factor
-                  {printf("unsigned_real\n");};
-
-ur_head					  : unsigned_integer;
-
-ur_tail           : unsigned_integer
-                  | unsigned_integer scale_factor
-
-scale_factor      : 'E' unsigned_integer
-                  | 'E' '+' unsigned_integer
-                  | 'E' '-' unsigned_integer
-                  {printf("scale_factor\n");};
-                  
+real_constant     : REAL_CONSTANT
+                  {strcpy($$,$1); printf("real_constant: %s\n", $1);};
 
 char_constant     : caractere
                   {$$=$1; printf("char_constant\n");};
