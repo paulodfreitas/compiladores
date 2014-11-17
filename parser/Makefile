@@ -1,6 +1,6 @@
 all: lexer parser
-	gcc lex.yy.c y.tab.c -ly -ll -o parser
+	g++ parser.cc lexer.cc -ly -ll -o parser
 parser: parser_rules
-	yacc -d parser_rules
+	bison --defines=y.tab.h -o parser.cc parser_rules
 lexer: lexer_rules
-	lex lexer_rules
+	flex -o lexer.cc lexer_rules

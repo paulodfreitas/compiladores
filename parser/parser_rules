@@ -1,13 +1,16 @@
 %{
 #include "types.h"
 #include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
 
 int yydebug=1;
 extern int yylineno,yychar;
 char digit_parse[100];
 unsigned digit_index=0;
+extern int yylex(void);
+extern int yyparse();
 
 void yyerror(const char *str)
 {
