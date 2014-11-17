@@ -38,12 +38,12 @@ main()
     char string[100];
     struct _constant_t constant_t;
     struct _op_t op_t;
+		nd::Node* node;
 }
 
 %token <number> CHARACTER
 %token <string> ID
 %type <number> caractere 
-%type <string> identifier
 %type <number> digit
 %type <string> label
 %type <string> variable
@@ -54,6 +54,7 @@ main()
 %type <op_t> relop
 %type <op_t> addop
 %type <op_t> mulop
+%type <node> program proc_body identifier
 
 %right  '='
 %left  '+'  '-' AND
@@ -61,10 +62,10 @@ main()
 
 %%
 program           : PROGRAM identifier proc_body
-                  {printf("program\n");};
+                  {$$ = new nd::Node(nd::PROGRAM); $$->children.push_back($2); $$->children.push_back($3); printf("program\n");};
 
 proc_body         : block_stmt
-                  {printf("proc-body\n");};
+                  {$$= new nd::Node(nd::PROC_BODY); printf("proc-body\n");};
 
 block_stmt        : DO stmt_list END
                   | DECLARE decl_list DO stmt_list END
@@ -139,7 +140,7 @@ stmt              : label ':' unlabelled_stmt
                   {printf("stmt\n");};
 
 label             : identifier
-                  {strcpy($$,$1); printf("label\n");};
+                  {strcpy($$,$1->literal_value.c_str()); printf("label\n");};
 
 unlabelled_stmt   : assign_stmt 
                   | if_stmt    
@@ -155,7 +156,7 @@ unlabelled_stmt   : assign_stmt
 assign_stmt       : variable ASSIGN expression
                   {printf("assign_stmt\n");};
 
-variable          : identifier {strcpy($$,$1);};
+variable          : identifier {strcpy($$,$1->literal_value.c_str());};
                   | array_element
                   {printf("variable\n");};
 
@@ -276,7 +277,7 @@ char_constant     : caractere
                   ;
 
 identifier        : ID
-                  {strcpy($$,$1);printf("identifier: %s\n",$1);};
+                  {$$ = new nd::Node(nd::IDENTIFIER); $$->literal_value=$1; printf("identifier: %s\n",$1);};
 
 digit             : '0' {$$='0'; printf("digit: 0\n");}  
                   | '1' {$$='1'; printf("digit: 1\n");} 
