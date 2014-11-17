@@ -169,16 +169,9 @@ if_stmt           : IF condition THEN stmt_list END
 condition         : expression
                   {printf("condition\n");};
 
-loop_stmt         : stmt_prefix stmt_list stmt_suffix
+loop_stmt         : WHILE condition block_stmt
+                  | DO stmt_list UNTIL
                   {printf("loop_stmt\n");};
-
-stmt_prefix       : WHILE condition DO
-                  | DO
-                  {printf("stmt_prefix\n");};
-
-stmt_suffix       : UNTIL condition
-                  | END
-                  {printf("stmt_suffix\n");};
 
 read_stmt         : READ '(' ident_list ')'
                   {printf("read_stmt\n");};
@@ -262,10 +255,15 @@ unsigned_integer  : digit {digit_parse[digit_index++] = $1; printf("single digit
 real_constant     : unsigned_real
                   {printf("real_constant\n");};
 
-unsigned_real     : unsigned_integer
+unsigned_real     : ur_head '.' ur_tail
                   | unsigned_integer '.' unsigned_integer
                   | unsigned_integer '.' unsigned_integer scale_factor
                   {printf("unsigned_real\n");};
+
+ur_head					  : unsigned_integer;
+
+ur_tail           : unsigned_integer
+                  | unsigned_integer scale_factor
 
 scale_factor      : 'E' unsigned_integer
                   | 'E' '+' unsigned_integer
